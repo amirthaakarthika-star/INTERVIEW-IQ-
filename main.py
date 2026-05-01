@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import TypedDict, List, Optional
 from langgraph.graph import StateGraph, END
@@ -8,8 +9,11 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from resume_parser import parse_resume
 from evaluator import evaluate_answer, generate_gap_analysis
 import os, shutil
+from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI()
 app.add_middleware(
@@ -338,4 +342,8 @@ def reset():
 
 @app.get("/")
 def root():
+    return FileResponse(BASE_DIR / "index.html")
+
+@app.get("/health")
+def health():
     return {"status": "InterviewIQ backend running"}

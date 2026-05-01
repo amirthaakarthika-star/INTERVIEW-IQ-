@@ -35,6 +35,8 @@ INTERVIEW-IQ-
 +-- resume_parser.py     # PDF resume parser
 +-- index.html           # Frontend UI
 +-- requirements.txt     # Python dependencies
++-- render.yaml          # Render deployment configuration
++-- .env.example         # Example environment variables
 +-- .gitignore
 +-- README.md
 ```
@@ -94,11 +96,33 @@ The backend will run at:
 http://localhost:8000
 ```
 
-Then open `index.html` in your browser and upload a PDF resume to begin the mock interview.
+Then open this URL in your browser and upload a PDF resume to begin the mock interview.
+
+## Deployment
+
+This project is ready to deploy as a single Render web service. The FastAPI backend serves both the API routes and the `index.html` frontend.
+
+1. Push the latest code to GitHub.
+2. Go to [Render](https://render.com/).
+3. Create a new **Web Service** from this repository.
+4. Render can use the included `render.yaml` configuration.
+5. Add this environment variable in Render:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+6. Deploy the service.
+
+After deployment, the frontend will automatically call the deployed backend URL.
 
 ## API Endpoints
 
 ### `GET /`
+
+Serves the InterviewIQ frontend.
+
+### `GET /health`
 
 Checks whether the backend is running.
 

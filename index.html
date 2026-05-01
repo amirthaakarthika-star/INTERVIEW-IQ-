@@ -626,7 +626,7 @@
 </div>
 
 <script>
-const API = "http://localhost:8000";
+const API = window.location.protocol === 'file:' ? 'http://localhost:8000' : window.location.origin;
 let qCount = 0;
 let totalScore = 0;
 let scoreCount = 0;
