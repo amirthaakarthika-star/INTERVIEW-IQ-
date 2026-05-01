@@ -14,13 +14,17 @@ InterviewIQ is an AI-powered mock interview coach that generates personalized in
 
 ## Tech Stack
 
-- Python
-- FastAPI
-- LangGraph
-- LangChain
-- Groq LLM API
-- pypdf
-- HTML, CSS, JavaScript
+| Technology | Purpose |
+| --- | --- |
+| Python | Backend programming language |
+| FastAPI | API server for resume upload, chat, and reset endpoints |
+| LangGraph | Interview flow and state-based workflow logic |
+| LangChain | LLM message handling and integration utilities |
+| Groq LLM API | AI model provider for questions, evaluation, and gap analysis |
+| pypdf | Extracts text from uploaded PDF resumes |
+| HTML | Frontend page structure |
+| CSS | Styling and responsive layout |
+| JavaScript | Browser-side chat, upload, and API interaction logic |
 
 ## Project Structure
 
