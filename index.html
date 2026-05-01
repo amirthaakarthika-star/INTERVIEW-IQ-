@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterviewIQ — AI Mock Interview Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c6aff;
+    --accent2: #ff6a9b;
+    --accent3: #6affd4;
+    --text: #f0eeff;
+    --muted: #6b6a80;
+    --ai-bg: #16162a;
+    --user-bg: #1e0a3c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 {
+    width: 400px; height: 400px;
+    background: rgba(124,106,255,0.12);
+    top: -100px; left: -100px;
+    animation: drift1 12s ease-in-out infinite alternate;
+  }
+  .orb2 {
+    width: 300px; height: 300px;
+    background: rgba(255,106,155,0.08);
+    bottom: 0; right: -50px;
+    animation: drift2 15s ease-in-out infinite alternate;
+  }
+  @keyframes drift1 { to { transform: translate(60px, 80px); } }
+  @keyframes drift2 { to { transform: translate(-40px, -60px); } }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+
+  header {
+    padding: 28px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .status-dot.active { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+
+  .hero {
+    padding: 40px 0 32px;
+    text-align: center;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    background: rgba(124,106,255,0.1);
+    border: 1px solid rgba(124,106,255,0.2);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 460px;
+    margin: 0 auto 28px;
+    line-height: 1.7;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .chip {
+    padding: 5px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .chip.active {
+    background: rgba(124,106,255,0.1);
+    border-color: rgba(124,106,255,0.3);
+    color: var(--accent);
+  }
+
+  .upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .upload-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--surface);
+    border: 1.5px dashed rgba(124,106,255,0.35);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 340px;
+    justify-content: center;
+  }
+
+  .upload-label:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: rgba(124,106,255,0.06);
+  }
+
+  .upload-label.selected {
+    border-color: var(--accent3);
+    color: var(--accent3);
+    background: rgba(106,255,212,0.05);
+  }
+
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent), #5a4de8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .btn-start.ready { opacity: 1; pointer-events: auto; }
+  .btn-start.ready:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(124,106,255,0.35);
+  }
+
+  .chat-container {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    animation: fadeUp 0.4s ease both;
+  }
+  .chat-container.visible { display: flex; }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .score-label { color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  .score-track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent3);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 0 20px;
+    min-height: 340px;
+    max-height: 420px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface2) transparent;
+  }
+
+  .msg-row {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .msg-row.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .avatar.ai {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: white;
+  }
+
+  .avatar.user-av {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .bubble.ai {
+    background: var(--ai-bg);
+    border: 1px solid rgba(124,106,255,0.1);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .bubble.user {
+    background: var(--user-bg);
+    border: 1px solid rgba(124,106,255,0.15);
+    border-top-right-radius: 4px;
+    color: var(--text);
+  }
+
+  .typing {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .typing.visible { display: flex; }
+
+  .typing-dots {
+    display: flex; gap: 4px;
+    padding: 12px 16px;
+    background: var(--ai-bg);
+    border: 1px solid rgba(124,106,255,0.1);
+    border-radius: 14px;
+    border-top-left-radius: 4px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1.2s ease infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .input-area {
+    padding: 16px 0 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  textarea {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    resize: none;
+    height: 50px;
+    max-height: 120px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+  textarea:focus { outline: none; border-color: rgba(124,106,255,0.4); }
+
+  .btn-send {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), #5a4de8);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-send:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124,106,255,0.4);
+  }
+
+  .btn-send svg { width: 18px; height: 18px; fill: white; }
+
+  .input-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hint { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  .btn-reset {
+    padding: 5px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-reset:hover { border-color: rgba(255,106,155,0.4); color: var(--accent2); }
+
+  .q-counter { display: flex; gap: 6px; align-items: center; }
+
+  .q-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .q-dot.done { background: var(--accent3); border-color: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .q-dot.current { background: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎯</div>
+      <div class="logo-text">Interview<span>IQ</span></div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">ready</span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero" id="hero">
+    <div class="hero-tag">✦ AI-powered mock interviews</div>
+    <h1>Practice until you<br><em>can't get it wrong</em></h1>
+    <p>Upload your resume and get personalised AI/ML interview questions based on YOUR projects and skills.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">questions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">AI</div>
+        <div class="stat-label">feedback</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">attempts</div>
+      </div>
+    </div>
+
+    <div class="topics">
+      <div class="chip active">Python</div>
+      <div class="chip active">LangChain</div>
+      <div class="chip active">RAG</div>
+      <div class="chip active">LLM APIs</div>
+      <div class="chip active">System Design</div>
+      <div class="chip active">Behavioural</div>
+    </div>
+
+    <div class="upload-area">
+      <label class="upload-label" id="uploadLabel">
+        <span style="font-size:20px">📄</span>
+        <span id="fileLabel">Upload your Resume (PDF)</span>
+        <input type="file" id="resumeFile" accept=".pdf"
+               style="display:none" onchange="fileSelected(this)">
+      </label>
+
+      <button class="btn-start" id="startBtn" onclick="startInterview()">
+        <span>Start Mock Interview</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-container" id="chat">
+    <div class="score-bar">
+      <span class="score-label">session score</span>
+      <div class="score-track"><div class="score-fill" id="scoreFill"></div></div>
+      <span class="score-num" id="scoreNum">—</span>
+      <div class="q-counter">
+        <div class="q-dot" id="d1"></div>
+        <div class="q-dot" id="d2"></div>
+        <div class="q-dot" id="d3"></div>
+        <div class="q-dot" id="d4"></div>
+        <div class="q-dot" id="d5"></div>
+        <div class="q-dot" id="d6"></div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="typing" id="typing">
+      <div class="avatar ai">IQ</div>
+      <div class="typing-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea
+          id="input"
+          placeholder="Type your answer here..."
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="btn-send" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        </button>
+      </div>
+      <div class="input-meta">
+        <span class="hint">Enter to send · Shift+Enter for new line</span>
+        <button class="btn-reset" onclick="resetInterview()">↺ New session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:8000";
+let qCount = 0;
+let totalScore = 0;
+let scoreCount = 0;
+
+function fileSelected(input) {
+  if (input.files.length > 0) {
+    document.getElementById('fileLabel').textContent = '✅ ' + input.files[0].name;
+    document.getElementById('uploadLabel').classList.add('selected');
+    document.getElementById('startBtn').classList.add('ready');
+  }
+}
+
+function setStatus(text, active) {
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').className = 'status-dot' + (active ? ' active' : '');
+}
+
+function addMsg(text, sender) {
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = `msg-row ${sender === 'user' ? 'user' : ''}`;
+
+  const av = document.createElement('div');
+  av.className = `avatar ${sender === 'user' ? 'user-av' : 'ai'}`;
+  av.textContent = sender === 'user' ? '👤' : 'IQ';
+
+  const bub = document.createElement('div');
+  bub.className = `bubble ${sender === 'user' ? 'user' : 'ai'}`;
+  bub.textContent = text;
+
+  row.appendChild(av);
+  row.appendChild(bub);
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  if (sender === 'ai') {
+    qCount = Math.min(qCount + 1, 6);
+    updateDots();
+    extractScore(text);
+  }
+}
+
+function updateDots() {
+  for (let i = 1; i <= 6; i++) {
+    const d = document.getElementById('d' + i);
+    if (i < qCount) d.className = 'q-dot done';
+    else if (i === qCount) d.className = 'q-dot current';
+    else d.className = 'q-dot';
+  }
+}
+
+function extractScore(text) {
+  const match = text.match(/(\d+)\s*\/\s*10/);
+  if (match) {
+    const s = parseInt(match[1]);
+    totalScore += s;
+    scoreCount++;
+    const avg = Math.round(totalScore / scoreCount);
+    document.getElementById('scoreNum').textContent = avg + '/10';
+    document.getElementById('scoreFill').style.width = (avg * 10) + '%';
+  }
+}
+
+function showTyping(v) {
+  document.getElementById('typing').className = 'typing' + (v ? ' visible' : '');
+}
+
+function autoResize(el) {
+  el.style.height = '50px';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function startInterview() {
+  const fileInput = document.getElementById('resumeFile');
+  if (!fileInput.files.length) {
+    alert('Please upload your resume PDF first!');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('resume', fileInput.files[0]);
+
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('chat').className = 'chat-container visible';
+  setStatus('parsing resume...', false);
+  showTyping(true);
+  qCount = 0;
+
+  try {
+    const res = await fetch(`${API}/start`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    showTyping(false);
+    setStatus('live', true);
+    addMsg(data.reply, 'ai');
+  } catch (e) {
+    showTyping(false);
+    setStatus('error', false);
+    addMsg('Could not connect to server.\n\nMake sure backend is running:\nuvicorn main:app --reload', 'ai');
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMsg(text, 'user');
+  input.value = '';
+  input.style.height = '50px';
+  showTyping(true);
+
+  try {
+    const res = await fetch(`${API}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    showTyping(false);
+    addMsg(data.reply, 'ai');
+  } catch (e) {
+    showTyping(false);
+    addMsg('Connection error. Is the backend still running?', 'ai');
+  }
+}
+
+async function resetInterview() {
+  try { await fetch(`${API}/reset`, { method: 'POST' }); } catch(e) {}
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('hero').style.display = '';
+  document.getElementById('chat').className = 'chat-container';
+  document.getElementById('fileLabel').textContent = 'Upload your Resume (PDF)';
+  document.getElementById('uploadLabel').classList.remove('selected');
+  document.getElementById('startBtn').classList.remove('ready');
+  document.getElementById('resumeFile').value = '';
+  qCount = 0; totalScore = 0; scoreCount = 0;
+  document.getElementById('scoreNum').textContent = '—';
+  document.getElementById('scoreFill').style.width = '0%';
+  updateDots();
+  setStatus('ready', false);
+}
+</script>
+</body>
+</html>
