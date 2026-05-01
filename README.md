@@ -2,6 +2,12 @@
 
 InterviewIQ is an AI-powered mock interview coach that generates personalized interview questions from a candidate's resume. It parses an uploaded PDF resume, asks technical and behavioral questions, evaluates answers, gives scores, and creates a final gap analysis report.
 
+## Live Demo
+
+Try InterviewIQ here: [https://interview-iq-tbxr.onrender.com/](https://interview-iq-tbxr.onrender.com/)
+
+Note: The live demo is hosted on Render's free tier, so the first request may take a few seconds to wake up after inactivity.
+
 ## Features
 
 - Upload a resume as a PDF
